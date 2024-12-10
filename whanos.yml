@@ -14,21 +14,6 @@ spec:
     spec:
       containers:
       - name: my-app-container
-        image: 2fic/whanos-base-javascript
+        image: docker.io/2fic/whanos-base-javascript:latest
         ports:
-        - containerPort: 8080
-      imagePullSecrets:
-      - name: regcred
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: my-app-servicetest
-spec:
-  selector:
-    app: my-app
-  ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 8080
-  type: NodePort
+        - containerPort: 3000
