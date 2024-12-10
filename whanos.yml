@@ -14,10 +14,10 @@ spec:
     spec:
       containers:
       - name: my-app-container
-        image: docker.io/2fic/my-app:latest
+        image: 2fic/whanos-base-javascript
         ports:
-        - containerPort: 8080  # Correct placement of ports
-      imagePullSecrets:        # This is correctly set here
+        - containerPort: 8080
+      imagePullSecrets:
       - name: regcred
 ---
 apiVersion: v1
