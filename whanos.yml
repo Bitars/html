@@ -14,11 +14,11 @@ spec:
     spec:
       containers:
       - name: my-app-container
-        image: docker.io/2fic/my-app:latest   # Full path to the image
-      imagePullSecrets:
-      - name: regcred
+        image: docker.io/2fic/my-app:latest
         ports:
-        - containerPort: 8080
+        - containerPort: 8080  # Correct placement of ports
+      imagePullSecrets:        # This is correctly set here
+      - name: regcred
 ---
 apiVersion: v1
 kind: Service
