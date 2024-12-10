@@ -15,8 +15,8 @@ spec:
       containers:
       - name: my-app-container
         image: docker.io/2fic/my-app:latest   # Full path to the image
-        imagePullSecrets:
-        - name: regcred
+      imagePullSecrets:
+      - name: regcred
         ports:
         - containerPort: 8080
 ---
