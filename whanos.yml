@@ -23,7 +23,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: my-app-service-test
+  name: my-app-servicetest
 spec:
   selector:
     app: my-app
