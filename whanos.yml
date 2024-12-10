@@ -1,9 +1,24 @@
-deployment:
-  replicas: 3
-  resources:
-    limits:
-      memory: "128M"
-    requests:
-      memory: "64M"
-  ports:
-    - 3000
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-deployment  # Name of the deployment
+spec:
+  replicas: 3          # Number of replicas
+  selector:
+    matchLabels:
+      app: my-app      # Label selector to match the pods
+  template:            # Pod template
+    metadata:
+      labels:
+        app: my-app    # Label for the pod
+    spec:
+      containers:
+        - name: my-container
+          image: nginx:latest   # Replace with your actual image
+          resources:            # Resource limits and requests
+            limits:
+              memory: "128Mi"
+            requests:
+              memory: "64Mi"
+          ports:                # Exposed ports
+            - containerPort: 3000
