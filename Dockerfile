@@ -22,6 +22,6 @@ COPY . .
 
 RUN npx tsc
 
-EXPOSE 8080
+EXPOSE 3000
 
 CMD ["node", "app/app.js"]
