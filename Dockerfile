@@ -1,4 +1,4 @@
-FROM whanos-javascript
+FROM 2fic/whanos-javascript
 
 RUN npm install -g typescript@4.4.3
 
