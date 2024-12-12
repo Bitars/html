@@ -1,7 +1,14 @@
-FROM 2fic/whanos-javascript
+FROM 2fic/whanos-javascript:latest
 
-RUN npm install -g typescript@4.4.3
+WORKDIR /app
 
-RUN tsc
+COPY package.json package-lock.json ./
+RUN npm install
 
-RUN find . -name "*.ts" -type f -not -path "./node_modules/*" -delete
+COPY . .
+
+RUN npx tsc
+
+EXPOSE 8080
+
+CMD ["node", "app/app.js"]
