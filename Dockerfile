@@ -1,5 +1,4 @@
-FROM 2fic/whanos-javascript
-
+FROM docker.io/2fic/whanos-javascript:latest
 WORKDIR /app
 
 # Copy package and lock files first to leverage build cache
