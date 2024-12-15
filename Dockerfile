@@ -1,4 +1,4 @@
-FROM whanos-javascript
+FROM localhost:5000/whanos-javascript
 
 RUN npm install -g typescript@4.4.3
 
