@@ -1,0 +1,111 @@
+- name: Ensure system is updated
+  become: true
+  pacman:
+    update_cache: yes
+
+- name: Install necessary packages
+  become: true
+  pacman:
+    name:
+      - jdk-openjdk
+      - curl
+      - docker
+    state: present
+
+- name: Enable and start Docker service
+  become: true
+  service:
+    name: docker
+    state: started
+    enabled: true
+
+- name: Check if yay is installed
+  stat:
+    path: /usr/bin/yay
+  register: yay_check
+
+- name: Install yay if not present
+  shell: |
+    git clone https://aur.archlinux.org/yay-bin.git /tmp/yay-bin &&
+    cd /tmp/yay-bin &&
+    makepkg -si --noconfirm
+  args:
+    executable: /bin/bash
+  become: true
+  become_user: jenkins
+  when: not yay_check.stat.exists
+
+- name: Install Jenkins from AUR
+  become: true
+  command: yay -S --noconfirm jenkins
+
+- name: Download Jenkins CLI
+  get_url:
+    url: "http://{{ ansible_default_ipv4.address }}:8090/jnlpJars/jenkins-cli.jar"
+    dest: /usr/local/bin/jenkins-cli.jar
+    mode: '0755'
+
+- name: Copy Jenkins Configuration (my_whanos.yml)
+  template:
+    src: my_whanos.yml
+    dest: /var/lib/jenkins/my_whanos.yml
+    mode: '0644'
+
+- name: Copy Jenkins Configuration (detect_language.sh)
+  template:
+    src: detect_language.sh
+    dest: /var/lib/jenkins/detect_language.sh
+    mode: '0644'
+
+- name: Copy build and push base images (pushBase.sh)
+  template:
+    src: pushBase.sh
+    dest: /var/lib/jenkins/pushBase.sh
+    mode: '0644'
+
+- name: Copy k3s kubernetes (k3s.sh)
+  template:
+    src: k3s.sh
+    dest: /var/lib/jenkins/k3s.sh
+    mode: '0644'
+
+- name: copy jenkins.env file
+  template:
+    src: jenkins_config.env
+    dest: /var/lib/jenkins/jenkins_config.env
+    mode: '0644'
+
+- name: Set CASC_JENKINS_CONFIG environment variable
+  lineinfile:
+    path: /etc/default/jenkins
+    regexp: '^CASC_JENKINS_CONFIG='
+    line: 'CASC_JENKINS_CONFIG=/var/lib/jenkins/my_whanos.yml'
+    create: yes
+
+- name: Copy Job DSL script (job_dsl.groovy)
+  template:
+    src: job_dsl.groovy
+    dest: /var/lib/jenkins/job_dsl.groovy
+    mode: '0644'
+
+- name: Copy images folder to Jenkins
+  copy:
+    src: "{{ playbook_dir }}/roles/jenkins/templates/images"
+    dest: /var/lib/jenkins/
+    owner: root
+    group: root
+    mode: '0644'
+    directory_mode: '0755'
+                  
+- name: Restart Jenkins to apply configuration
+  systemd:
+    name: jenkins
+    state: restarted
+
+- name: Debug Jenkins CasC and Job DSL setup
+  debug:
+    msg: >
+      Jenkins CasC configuration and Job DSL script have been applied successfully.
+      - CasC Config Path: /var/lib/jenkins/my_whanos.yml
+      - Job DSL Path: /var/lib/jenkins/job_dsl.groovy
+      - Check Jenkins logs for more details.

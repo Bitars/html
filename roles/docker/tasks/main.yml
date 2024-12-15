@@ -1,0 +1,114 @@
+- name: Install required system packages for Arch Linux
+  become: true
+  pacman:
+    name:
+      - base-devel
+      - curl
+      - python-pip
+      - python-setuptools
+      - python-virtualenv
+      - docker
+    state: latest
+    update_cache: true
+
+- name: Ensure Docker service is enabled and started
+  become: true
+  service:
+    name: docker
+    state: started
+    enabled: true
+
+- name: Add user to Docker group
+  become: true
+  user:
+    name: "{{ ansible_user }}"
+    groups: docker
+    append: true
+
+- name: Restart Docker service to apply group changes
+  become: true
+  service:
+    name: docker
+    state: restarted
+  
+- name: Check if virtual environment exists
+  stat:
+    path: /opt/venv
+  register: venv_check
+
+- name: Create virtual environment directory
+  become: true
+  file:
+    path: /opt/venv
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  when: not venv_check.stat.exists
+
+- name: Create a virtual environment
+  become: true
+  command: python -m venv /opt/venv
+  when: not venv_check.stat.exists
+
+- name: Install Docker Python module in the virtual environment
+  become: true
+  pip:
+    name: docker
+    virtualenv: /opt/venv
+
+- name: Pull default Docker image
+  become: true
+  community.docker.docker_image:
+    name: ubuntu
+    source: pull
+
+- name: Create default containers
+  become: true
+  community.docker.docker_container:
+    name: "docker_container_{{ item }}"
+    image: "ubuntu"
+    command: "sleep 1d"
+    state: started
+  with_sequence: count=4
+
+- name: Debug Docker setup
+  debug:
+    msg: "Docker setup completed. Containers created: 4, Image: ubuntu"
+
+- name: Check if the Docker registry container exists
+  become: true
+  shell: docker ps -a --filter "name=local-registry" --format "{{ '{{.Names}}' }}"
+  register: registry_container_check
+  changed_when: false
+
+- name: Remove existing Docker registry container if found
+  become: true
+  shell: docker rm -f local-registry
+  when: "'local-registry' in registry_container_check.stdout"
+
+- name: Run the Docker registry container
+  become: true
+  community.docker.docker_container:
+    name: local-registry
+    image: registry:2
+    state: started
+    published_ports:
+      - "5000:5000"
+
+- name: Verify local Docker registry is available
+  uri:
+    url: http://localhost:5000/v2/
+    method: GET
+    status_code: 200
+  register: registry_check
+
+- name: Debug local registry status
+  debug:
+    msg: "Docker registry is available and responding."
+  when: registry_check.status == 200
+
+
+- name: Debug Docker registry setup
+  debug:
+    msg: "Docker registry setup completed. Available at http://localhost:5000"

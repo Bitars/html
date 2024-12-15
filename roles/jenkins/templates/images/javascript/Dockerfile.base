@@ -1,0 +1,17 @@
+FROM node:20
+
+SHELL ["/bin/bash", "-c"]
+
+WORKDIR /app
+
+ONBUILD COPY package*.json ./
+
+ONBUILD RUN npm install
+
+ONBUILD COPY . ./
+
+ONBUILD RUN rm -rf tests/ docs/
+
+EXPOSE 3000
+
+ONBUILD CMD ["node", "app/app.js"]

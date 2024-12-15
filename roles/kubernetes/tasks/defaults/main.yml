@@ -1,0 +1,5 @@
+---
+ansible_user: ubuntu
+kubeadm_config_path: /etc/kubernetes/kubeadm-config.yaml
+kube_config_path: /home/touf/.kube/config
+pod_network_url: https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml
