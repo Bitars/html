@@ -1,7 +1,0 @@
-docker_version: "20.10"
-jenkins_admin_password: "hello"
-kubernetes_version: "1.21.0"
-jenkins_port: 8081
-kubernetes_apiserver_port: 6444
-ansible_user: touf
-
