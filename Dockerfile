@@ -1,5 +1,5 @@
 # Use the base image
-FROM whanos-c-base:latest
+FROM whanos-c:latest
 
 # Copy source code into the container
 COPY . /app
