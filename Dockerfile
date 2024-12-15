@@ -1,4 +1,4 @@
-FROM localhost:5000/java-base
+FROM localhost:5000/whanos-java
 
 
 WORKDIR /app
